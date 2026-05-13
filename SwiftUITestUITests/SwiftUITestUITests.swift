@@ -136,7 +136,7 @@ final class SwiftUITestUITests: XCTestCase {
 
         // Verify all landmarks are visible again
         XCTAssertTrue(
-            app.buttons["Turtle Rock"].exists,
+            app.buttons["Turtle Rock"].waitForExistence(timeout: 3),
             "All landmarks should be visible after turning off filter"
         )
     }
