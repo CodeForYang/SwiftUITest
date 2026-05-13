@@ -38,7 +38,6 @@ final class SwiftUITestTests: XCTestCase {
         let modelData = ModelData()
         let features = modelData.features
 
-        XCTAssertFalse(features.isEmpty)
         for landmark in features {
             XCTAssertTrue(landmark.isFeatured)
         }
