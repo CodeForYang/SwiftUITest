@@ -38,6 +38,7 @@ final class SwiftUITestTests: XCTestCase {
         let modelData = ModelData()
         let features = modelData.features
 
+        XCTAssertFalse(features.isEmpty)
         for landmark in features {
             XCTAssertTrue(landmark.isFeatured)
         }
@@ -56,5 +57,7 @@ final class SwiftUITestTests: XCTestCase {
                 XCTAssertEqual(landmark.category.rawValue, key)
             }
         }
+        let totalGrouped = categories.values.reduce(0) { $0 + $1.count }
+        XCTAssertEqual(totalGrouped, modelData.landmarks.count)
     }
 }
