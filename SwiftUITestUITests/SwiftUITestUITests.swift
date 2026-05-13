@@ -34,7 +34,7 @@ final class SwiftUITestUITests: XCTestCase {
 
         // Verify list content is visible
         XCTAssertTrue(
-            app.buttons["Turtle Rock"].exists,
+            app.buttons["Turtle Rock"].waitForExistence(timeout: 3),
             "First landmark cell should be visible in list tab"
         )
 
@@ -45,7 +45,7 @@ final class SwiftUITestUITests: XCTestCase {
 
         // Verify featured content is visible
         XCTAssertTrue(
-            app.staticTexts["Lakes"].exists,
+            app.staticTexts["Lakes"].waitForExistence(timeout: 3),
             "Featured tab should show category headers"
         )
     }
@@ -59,6 +59,12 @@ final class SwiftUITestUITests: XCTestCase {
         // Switch to List tab
         app.tabBars.buttons["list"].tap()
 
+        // Verify list rendered
+        XCTAssertTrue(
+            app.staticTexts["Landmarks"].waitForExistence(timeout: 3),
+            "Landmarks navigation title should appear"
+        )
+
         // Tap the first landmark cell ("Turtle Rock")
         let turtleRockCell = app.buttons["Turtle Rock"]
         XCTAssertTrue(turtleRockCell.exists, "Turtle Rock cell should exist")
@@ -66,7 +72,7 @@ final class SwiftUITestUITests: XCTestCase {
 
         // Assert detail view appears with expected content
         XCTAssertTrue(
-            app.staticTexts["Turtle Rock"].exists,
+            app.staticTexts["Turtle Rock"].waitForExistence(timeout: 3),
             "Detail view should show the landmark name"
         )
         XCTAssertTrue(
@@ -85,7 +91,7 @@ final class SwiftUITestUITests: XCTestCase {
 
         // Assert list is visible again
         XCTAssertTrue(
-            app.buttons["Turtle Rock"].exists,
+            app.buttons["Turtle Rock"].waitForExistence(timeout: 3),
             "Landmark list should be visible after navigating back"
         )
     }
@@ -98,6 +104,12 @@ final class SwiftUITestUITests: XCTestCase {
     func testFavoriteFilter() throws {
         // Switch to List tab
         app.tabBars.buttons["list"].tap()
+
+        // Verify list rendered
+        XCTAssertTrue(
+            app.staticTexts["Landmarks"].waitForExistence(timeout: 3),
+            "Landmarks navigation title should appear"
+        )
 
         // Locate "Favorites only" toggle
         let favoritesToggle = app.switches["Favorites only"]
@@ -113,12 +125,14 @@ final class SwiftUITestUITests: XCTestCase {
 
         // Verify favorited items are visible (star.fill image appears)
         XCTAssertTrue(
-            app.images["star.fill"].firstMatch.exists,
+            app.images["star.fill"].firstMatch.waitForExistence(timeout: 3),
             "Star fill image should be visible for favorited items"
         )
 
         // Turn toggle off
-        favoritesToggle.tap()
+        if favoritesToggle.value as? String == "1" {
+            favoritesToggle.tap()
+        }
 
         // Verify all landmarks are visible again
         XCTAssertTrue(
