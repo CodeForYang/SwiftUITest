@@ -5,15 +5,57 @@
 //  Created by 杨佩 on 2026/4/28.
 //
 
-import Testing
+import XCTest
 @testable import SwiftUITest
 
-struct SwiftUITestTests {
+final class SwiftUITestTests: XCTestCase {
 
-    @Test func example() async throws {
-        // Write your test here and use APIs like `#expect(...)` to check expected conditions.
-        // Swift Testing Documentation
-        // https://developer.apple.com/documentation/testing
+    override func setUpWithError() throws {
+        continueAfterFailure = false
     }
 
+    // MARK: - JSON Decoding
+
+    func testLandmarkDecoding() throws {
+        let url = try XCTUnwrap(
+            Bundle.main.url(forResource: "landmarkData", withExtension: "json")
+        )
+        let data = try Data(contentsOf: url)
+        let landmarks = try JSONDecoder().decode([Landmark].self, from: data)
+
+        XCTAssertEqual(landmarks.count, 12)
+        let first = landmarks[0]
+        XCTAssertEqual(first.name, "Turtle Rock")
+        XCTAssertEqual(first.park, "Joshua Tree National Park")
+        XCTAssertEqual(first.category, .rivers)
+        XCTAssertTrue(first.isFeatured)
+        XCTAssertTrue(first.isFavorite)
+    }
+
+    // MARK: - Featured Landmarks
+
+    func testModelDataFeatures() throws {
+        let modelData = ModelData()
+        let features = modelData.features
+
+        XCTAssertFalse(features.isEmpty)
+        for landmark in features {
+            XCTAssertTrue(landmark.isFeatured)
+        }
+        XCTAssertLessThanOrEqual(features.count, modelData.landmarks.count)
+    }
+
+    // MARK: - Category Grouping
+
+    func testModelDataCategories() throws {
+        let modelData = ModelData()
+        let categories = modelData.categories
+
+        XCTAssertEqual(Set(categories.keys), Set(["Lakes", "Rivers", "Mountains"]))
+        for (key, landmarks) in categories {
+            for landmark in landmarks {
+                XCTAssertEqual(landmark.category.rawValue, key)
+            }
+        }
+    }
 }
