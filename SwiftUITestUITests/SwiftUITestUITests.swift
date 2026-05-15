@@ -156,7 +156,7 @@ final class SwiftUITestUITests: XCTestCase {
         profile.setUsername("Edward")
             .enableNotifications(false)
             .selectSeasonPhoto("🍂")
-            .setGoalDate(year: 2026, month: 5, day: 15)
+            .setGoalDate("May 15")
         
         app.buttons["Done"].tap()
         

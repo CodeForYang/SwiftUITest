@@ -1,5 +1,5 @@
 //
-//  SwiftUITestUITests.swift
+//  SwiftUITestUIProfileTest.swift
 //  SwiftUITestUITests
 //
 //  Created by 杨佩 on 2026/4/28.
@@ -19,7 +19,6 @@ class ProfilePage {
         case goalDate = "summary_date"
     }
     
-    @discardableResult
     init(app: XCUIApplication) {
         self.app = app
     }
@@ -31,14 +30,10 @@ class ProfilePage {
     var enableNotificationsToggle: XCUIElement {
         
         let container = toggleContainer(named: "Enable Notifications")
-        if !container.exists {
-            print("Toggle with identifier 'Enable Notifications' not found")
-        }
+        XCTAssertTrue(container.exists, "Toggle with identifier 'Enable Notifications' not found")
 
         let toggleSwitch = realSwitch(in: container)
-        if !toggleSwitch.exists {
-            print("Real switch inside 'Enable Notifications' not found")
-        }
+        XCTAssertTrue(toggleSwitch.exists, "Real switch inside 'Enable Notifications' not found")
         
         return toggleSwitch
     }
@@ -62,25 +57,29 @@ class ProfilePage {
         container.switches.firstMatch
     }
     
+    private func waitForElement(_ element: XCUIElement, timeout: TimeInterval = 3) -> Bool {
+        return element.waitForExistence(timeout: timeout)
+    }
+    
     func checkEditButtonExists() throws {
         let editButton = app.buttons["editButton"]
-        let _ = editButton.waitForExistence(timeout: 3)
-        XCTAssertTrue(editButton.exists, "Edit button should be exists")
+        XCTAssertTrue(waitForElement(editButton), "Edit button should exist")
         editButton.tap()
     }
     
-    // 封装常用操作
+    /// Sets the username in the text field.
     @discardableResult
     func setUsername(_ name: String) -> Self  {
         usernameTextField.tap()
-        _ = usernameTextField.waitForExistence(timeout: 1)
+        XCTAssertTrue(waitForElement(usernameTextField), "Username text field not found")
         usernameTextField.tap()
-        XCUIApplication().menuItems["Select All"].tap()
-        _ = usernameTextField.waitForExistence(timeout: 1)
+        app.menuItems["Select All"].tap()
+        XCTAssertTrue(waitForElement(usernameTextField), "Username text field not found after select all")
         usernameTextField.typeText(name)  // 直接覆盖选中内容
         return self
     }
     
+    /// Enables or disables notifications.
     @discardableResult
     func enableNotifications(_ enabled: Bool) -> Self {
         if enabled != (enableNotificationsToggle.value as? String == "1") {
@@ -89,23 +88,60 @@ class ProfilePage {
         return self
     }
     
+    /// Selects a season photo.
     @discardableResult
     func selectSeasonPhoto(_ season: String) -> Self  {
         let pickerRow = app.cells.containing(.staticText, identifier: "Season Photos").firstMatch
-            pickerRow.tap()
-            
-            // 在选择页面中点击对应的选项
-            let option = app.buttons[season]  // 或者 app.staticTexts[season]
-            option.tap()
+        pickerRow.tap()
+        
+        // 在选择页面中点击对应的选项
+        let option = app.buttons[season]  // 或者 app.staticTexts[season]
+        XCTAssertTrue(option.waitForExistence(timeout: 3), "Season option '\(season)' not found")
+        option.tap()
         return self
     }
     
+    /// Interacts with the goal date picker and sets a specific date.
     @discardableResult
-    func setGoalDate(year: Int, month: Int, day: Int) -> Self  {
-        goalDatePicker.tap()
-        _ = goalDatePicker.waitForExistence(timeout: 1)
+    func setGoalDate(_ dateString: String) -> Self  {
+        let picker = goalDatePicker
+        XCTAssertTrue(waitForElement(picker), "Goal date picker not found")
         
-        app.buttons["Wednesday, May 6"].tap()
+        // 轻点 DatePicker 打开日期选择界面
+        picker.tap()
+        
+        // 等待日期轮子出现
+        let firstWheel = app.pickerWheels.firstMatch
+        XCTAssertTrue(firstWheel.waitForExistence(timeout: 3), "Date picker wheels not found")
+        
+        // 对于 DatePicker，轮子通常按以下顺序排列：Month, Day, Year
+        // 目标日期：May 15
+        let wheels = app.pickerWheels.allElementsBoundByIndex
+        
+        if wheels.count >= 2 {
+            // 调整月份轮子到 May
+            let monthWheel = wheels[0]
+            var attempts = 0
+            while !monthWheel.label.contains("May") && attempts < 12 {
+                monthWheel.swipeUp()
+                attempts += 1
+            }
+            
+            // 调整日期轮子到 15
+            let dayWheel = wheels[1]
+            attempts = 0
+            while !dayWheel.label.contains("15") && attempts < 31 {
+                // 如果当前日期小于 15，向上滑动；否则向下滑动
+                let currentDay = Int(dayWheel.label.trimmingCharacters(in: .whitespaces)) ?? 1
+                if currentDay < 15 {
+                    dayWheel.swipeUp()
+                } else {
+                    dayWheel.swipeDown()
+                }
+                attempts += 1
+            }
+        }
+        
         return self
     }
     
@@ -131,12 +167,13 @@ class ProfilePage {
     
     
     // 验证方法：值不对则抛出 XCTIssue（测试失败）
+    /// Verifies the profile summary display values.
     func verifyProfileSummaryDisplay() {
         
         // 假设之前已经编辑了资料，现在回到回显界面
         XCTAssertEqual(valueForIdentifier(.name), "Edward")
         XCTAssertEqual(valueForIdentifier(.notification), "NO")
         XCTAssertEqual(valueForIdentifier(.seasonPhoto), "🍂")
-        XCTAssertEqual(valueForIdentifier(.goalDate), "May 6, 2026") // 日期格式要匹配
+        XCTAssertEqual(valueForIdentifier(.goalDate), "May 15, 2026") // 日期格式要匹配
     }
 }
