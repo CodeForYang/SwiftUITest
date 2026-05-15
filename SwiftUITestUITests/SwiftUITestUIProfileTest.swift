@@ -101,46 +101,21 @@ class ProfilePage {
         return self
     }
     
-    /// Interacts with the goal date picker and sets a specific date.
+    /// Interacts with the goal date picker and selects May 15.
+    /// The DatePicker shows a calendar with date buttons like "Thursday, May 15".
     @discardableResult
     func setGoalDate(_ dateString: String) -> Self  {
         let picker = goalDatePicker
         XCTAssertTrue(waitForElement(picker), "Goal date picker not found")
         
-        // 轻点 DatePicker 打开日期选择界面
+        // 轻点 DatePicker 打开日历选择界面
         picker.tap()
         
-        // 等待日期轮子出现
-        let firstWheel = app.pickerWheels.firstMatch
-        XCTAssertTrue(firstWheel.waitForExistence(timeout: 3), "Date picker wheels not found")
-        
-        // 对于 DatePicker，轮子通常按以下顺序排列：Month, Day, Year
-        // 目标日期：May 15
-        let wheels = app.pickerWheels.allElementsBoundByIndex
-        
-        if wheels.count >= 2 {
-            // 调整月份轮子到 May
-            let monthWheel = wheels[0]
-            var attempts = 0
-            while !monthWheel.label.contains("May") && attempts < 12 {
-                monthWheel.swipeUp()
-                attempts += 1
-            }
-            
-            // 调整日期轮子到 15
-            let dayWheel = wheels[1]
-            attempts = 0
-            while !dayWheel.label.contains("15") && attempts < 31 {
-                // 如果当前日期小于 15，向上滑动；否则向下滑动
-                let currentDay = Int(dayWheel.label.trimmingCharacters(in: .whitespaces)) ?? 1
-                if currentDay < 15 {
-                    dayWheel.swipeUp()
-                } else {
-                    dayWheel.swipeDown()
-                }
-                attempts += 1
-            }
-        }
+        // 等待日历加载，查找包含 "15" 的日期按钮
+        // 由于日期按钮格式为 "Thursday, May 15" 等，我们搜索包含 "15" 的按钮
+        let dateButton = app.buttons.containing(NSPredicate(format: "label CONTAINS '15'")).firstMatch
+        XCTAssertTrue(dateButton.waitForExistence(timeout: 3), "Date button for 15 not found")
+        dateButton.tap()
         
         return self
     }
