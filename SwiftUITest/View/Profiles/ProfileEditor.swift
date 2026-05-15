@@ -28,6 +28,7 @@ struct ProfileEditor: View {
             }
             
             Toggle("Enable Notifications", isOn: $profile.perfersNotifications)
+                .accessibilityIdentifier("Enable Notifications")
             
             Picker("Season Photos", selection: $profile.seasonalPhoto) {
                 ForEach(Profile.Seasons.allCases) { season in
@@ -36,6 +37,7 @@ struct ProfileEditor: View {
             }
             
             DatePicker("Goal Date", selection: $profile.goalDate, in: dateRange, displayedComponents: .date)
+                .accessibilityIdentifier("Goal Date")
         }
     }
 }

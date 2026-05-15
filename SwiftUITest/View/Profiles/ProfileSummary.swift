@@ -14,12 +14,12 @@ struct ProfileSummary: View {
     var body: some View {
         ScrollView {
             VStack (alignment: .leading, spacing: 10) {
-                Text(profile.username)
+                Text(profile.username).accessibilityIdentifier("summary_username")
                     .bold()
                     .font(.title)
-                Text("Notifications: \(profile.perfersNotifications ? "YES" : "NO") ")
-                Text("SeasonalPhotos: \(profile.seasonalPhoto.rawValue)")
-                Text("Goal Date: \(profile.goalDate, style: .date)")
+                Text("Notifications: \(profile.perfersNotifications ? "YES" : "NO") ").accessibilityIdentifier("summary_notifications")
+                Text("SeasonalPhotos: \(profile.seasonalPhoto.rawValue)").accessibilityIdentifier("summary_season")
+                Text("Goal Date: \(profile.goalDate, style: .date)").accessibilityIdentifier("summary_date")
                 
                 Divider()
                 

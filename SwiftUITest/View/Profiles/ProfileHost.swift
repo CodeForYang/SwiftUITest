@@ -26,7 +26,7 @@ struct ProfileHost: View {
                 
                 Spacer()
                 
-                EditButton()
+                EditButton().accessibilityIdentifier("editButton")
                 
             }
             

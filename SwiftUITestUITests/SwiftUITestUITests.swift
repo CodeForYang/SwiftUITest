@@ -140,4 +140,27 @@ final class SwiftUITestUITests: XCTestCase {
             "All landmarks should be visible after turning off filter"
         )
     }
+    
+    @MainActor
+    func testUserProfile() throws {
+        
+        let userButton = app.navigationBars.buttons["User Profile"]
+        XCTAssertTrue(
+            userButton.exists,
+            "User profile button should be visible"
+        )
+        userButton.tap()
+        
+        let profile = ProfilePage(app: app)
+        try profile.checkEditButtonExists()
+        profile.setUsername("Edward")
+            .enableNotifications(false)
+            .selectSeasonPhoto("🍂")
+            .setGoalDate(year: 2026, month: 5, day: 15)
+        
+        app.buttons["Done"].tap()
+        
+        profile.verifyProfileSummaryDisplay()
+        
+    }
 }
